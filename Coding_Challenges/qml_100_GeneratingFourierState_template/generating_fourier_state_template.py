@@ -27,7 +27,22 @@ def generating_fourier_state(n_qubits, m):
 
         # QHACK #
 
-        # Add the template of the statement with the angles passed as an argument.
+        count = 0
+        for i in range(n_qubits):
+            qml.Hadamard(wires = [i])
+            for j in range(i+1,n_qubits):
+                qml.CRZ(angles[count],wires = [j,i])
+                count = count+1
+        
+        if (n_qubits % 2 == 0):
+            i = 0
+            while(i < (n_qubits / 2)):
+                qml.SWAP(wires = [i,n_qubits-i-1])
+        elif (n_qubits % 2 == 1):
+            i = 0
+            while(i < ((n_qubits-1)/2)):
+                qml.SWAP(wires = [i,n_qubits-i-1])
+        
 
         # QHACK #
 
@@ -46,7 +61,7 @@ def generating_fourier_state(n_qubits, m):
         probs = circuit(angles)
         # QHACK #
 
-        # The return error should be smaller when the state m is more likely to be obtained.
+        return (1 - probs[m])
 
         # QHACK #
 
