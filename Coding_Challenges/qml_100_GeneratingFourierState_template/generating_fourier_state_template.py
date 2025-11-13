@@ -15,7 +15,7 @@ def generating_fourier_state(n_qubits, m):
         we would generate the state QFT|0011> (3 in binary is 11).
 
     Returns:
-       - (qml.QNode): circuit used to generate the state.
+    - (qml.QNode): circuit used to generate the state.
        - (list[float]): angles that generate the state QFT|m>.
     """
 
@@ -27,8 +27,25 @@ def generating_fourier_state(n_qubits, m):
 
         # QHACK #
 
-        # Add the template of the statement with the angles passed as an argument.
+        i = 0
+        count = 0
+        while(i < n_qubits - i):
+            qml.Hadamard(wires = [i])
+            j=0
+            whlie(i < n_qubits - i):
+                 qml.CRZ(angles[count],wires = [j+1,i])
+                 j = j=1
+            i = i+1
 
+        if (n_qubits % 2 ==0):
+            i = 0
+            while( i< (n_qubits/2)):
+                qml.SWAP(wires = [i,n_qubits-i])
+        elif (n_qubits % == 1):
+            i = 0
+            while(i < ((n_qubits-1) / 2)):
+                qml.SWAP(wires = [i , n_qubits - i ])
+            
         # QHACK #
 
         # We apply QFT^-1 to return to the computational basis.
@@ -46,8 +63,7 @@ def generating_fourier_state(n_qubits, m):
         probs = circuit(angles)
         # QHACK #
 
-        # The return error should be smaller when the state m is more likely to be obtained.
-
+        return (1 - probs[m])
         # QHACK #
 
     # This subroutine will find the angles that minimize the error function.
