@@ -17,9 +17,19 @@ def prepare_entangled(alpha, beta):
         - beta (float): real coefficient of |11>
     """
 
-    # QHACK #
+    alpha = float(alpha)
+    beta = float(beta)
 
-    # QHACK #
+    norm = np.sqrt(alpha**2 + beta**2)
+    if norm = 0.0:
+        raise ValueError("prepare_entangled: alpha and beta cannot both be zero ")
+
+    a = alpha / norm 
+    b = beta / norm
+
+    state = np.array([a, 0.0 , 0.0, b],dtype = complex )
+
+    qml.QubitStateVector(state , wires=[0, 1])
 
 @qml.qnode(dev)
 def chsh_circuit(theta_A0, theta_A1, theta_B0, theta_B1, x, y, alpha, beta):
@@ -41,9 +51,21 @@ def chsh_circuit(theta_A0, theta_A1, theta_B0, theta_B1, x, y, alpha, beta):
 
     prepare_entangled(alpha, beta)
 
-    # QHACK #
+    if int(x) == 0:
+        theta_A = theta_A0
+    else:
+        theta_A = theta_A1
 
-    # QHACK #
+    if int(y) == 0:
+        theta_B = theta_B0
+
+    else:
+        theta_B = theta_B1
+
+
+    qml.RY(-2.0 * theta_A, wiresa=0) #Alice's basis rotation on wire 0
+
+    qml.RY(-2.0 * theta_B, wires=1)  #Bob's basis rotation on wire 1
 
     return qml.probs(wires=[0, 1])
     
@@ -60,9 +82,23 @@ def winning_prob(params, alpha, beta):
         - (float): Probability of winning the game
     """
 
-    # QHACK #
+    theta_A0 , theta_A1 , theta_B0 , theta_B1 = params
+    total_win = 0.0
 
-    # QHACK #
+    for x in [0, 1]:
+        for y in [0, 1]:
+
+            probs = chsh_circuit(theta_A0 , theta_A1, theta_B0, theta_B1, x, y, alpha, beta)
+
+            if int(x * y) == 0:
+                win_xy = probs[0] + probs[3]
+
+            else:
+                win_xy = probs[1] + probs[2]
+
+            total_win += win_xy
+
+    return total_win / 4.0
     
 
 def optimize(alpha, beta):
@@ -75,29 +111,23 @@ def optimize(alpha, beta):
     Returns:
         - (float): Probability of winning
     """
-
     def cost(params):
         """Define a cost function that only depends on params, given alpha and beta fixed"""
 
-    # QHACK #
 
-    #Initialize parameters, choose an optimization method and number of steps
-    init_params = 
-    opt =
-    steps =
+    init_params = np.array([0.0, 0.0, 0.0, 0.0], requires_grad= True)
 
-    # QHACK #
+    opt = qml.GradientDescentOptimizer(stepsize+0.2)
+    steps = 200
+
     
     # set the initial parameter values
     params = init_params
 
     for i in range(steps):
         # update the circuit parameters 
-        # QHACK #
 
-        params = 
-
-        # QHACK #
+        params = opt.step(lambda v: -winning_prob(v, alpha, beta), params)
 
     return winning_prob(params, alpha, beta)
 
