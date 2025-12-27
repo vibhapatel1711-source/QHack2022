@@ -2,7 +2,10 @@
 
 import sys
 import numpy as np
+import pennylane as qml
 
+dev = qml.device('default.qubit' , wires = 6)
+@qml.qnode(dev)
 
 def givens_rotations(a, b, c, d):
     """Calculates the angles needed for a Givens rotation to out put the state with amplitudes a,b,c and d
@@ -16,7 +19,21 @@ def givens_rotations(a, b, c, d):
     """
 
     # QHACK #
+    t1 = 2 * np.arctan(np.sqrt(b**2 + c**2)/ np.sqrt(a**2 + d**2))
+    t2 = 2 * np.arctan(c / b)
+    t3 = 2 * np.arctan(d / a)
 
+    qml.BasisState(np.array([1, 1, 0, 0, 0, 0]), wires = [0 ,1 , 2, 3, 4, 5])
+    # apply first double excitation gate 
+    qml.DoubleExcitation( t1 , wires = [0, 1, 2, 3])
+
+    # apply second double excitation gate
+    qml.DoubleExcitation( t2 , wires = [2, 3, 4, 5])
+
+    # apply controlled single excitation gate 
+    qml.ctrl(qml.SingleExcitation, control = 0)(t3 , wires = [1 , 3])
+
+    return [float(t1), float(t2), float(t3)]
     # QHACK #
 
 
